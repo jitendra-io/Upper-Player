@@ -792,7 +792,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (e) {
             console.error(e);
-            alert(`GitHub Deployment Failed: ${e.message}`);
+            let errMsg = e.message;
+            if (errMsg.includes('Network error during asset upload') || errMsg.includes('Failed to fetch')) {
+                alert('GitHub CORS Limitation Alert:\n\nGitHub\'s asset upload servers block direct web browser uploads due to security policies (CORS).\n\nTo host your APK:\n1. Go to your GitHub repository -> click "Releases" -> click "Draft a new release".\n2. Tag your release (e.g. v1.0.0) and write a title.\n3. Drag and drop your "app-debug.apk" into the asset box (supports up to 2GB) and click "Publish release".\n\nThis website will automatically fetch the latest release and show the download button + QR code to all visitors!');
+            } else {
+                alert(`GitHub Deployment Failed: ${errMsg}`);
+            }
             showApkDetailsPanel(state.currentFile, state.extractedIcon);
         }
     }
