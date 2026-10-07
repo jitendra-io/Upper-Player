@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upper Player - Activation Key Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0F0E17;
+            --surface: #1F1E26;
+            --border: #2E2C38;
+            --accent: #FF8906;
+            --secondary: #F25F4C;
+            --text: #FFFFFE;
+            --subtext: #A7A9BE;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--accent);
+            font-size: 26px;
+            font-weight: 800;
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--subtext);
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text);
+            font-size: 16px;
+            font-family: monospace;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        button {
+            width: 100%;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background: #e07805;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .result-box {
+            margin-top: 24px;
+            background: var(--bg);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            display: none;
+        }
+
+        .result-label {
+            font-size: 11px;
+            color: var(--subtext);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .key-display {
+            font-size: 24px;
+            font-weight: 800;
+            color: #2ecc71;
+            letter-spacing: 2px;
+            font-family: monospace;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+            display: inline-block;
+        }
+
+        .key-display:hover {
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .copy-hint {
+            font-size: 11px;
+            color: var(--subtext);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Key Generator</h1>
+    <p class="subtitle">Enter the customer's 8-character Device ID to generate their subscription Activation Key.</p>
+
+    <div class="input-group">
+        <label for="deviceId">Customer Device ID</label>
+        <input type="text" id="deviceId" placeholder="e.g. A7B2C9DF" maxlength="8" autocomplete="off" oninput="this.value = this.value.toUpperCase()">
+    </div>
+
+    <button onclick="generateKey()">Generate Activation Key</button>
+
+    <div class="result-box" id="resultBox">
+        <div class="result-label">Send this key to customer</div>
+        <div class="key-display" id="keyDisplay" onclick="copyToClipboard()" title="Click to copy">4F8D2E9A7B</div>
+        <div class="copy-hint" id="copyHint">Click key to copy to clipboard</div>
+    </div>
+</div>
+
+<script>
+    // SHA-256 implementation in plain JS
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    async function generateKey() {
+        const deviceId = document.getElementById('deviceId').value.trim().toUpperCase();
+        if (deviceId.length !== 8) {
+            alert('Please enter a valid 8-character Device ID.');
+            return;
+        }
+
+        const secretSalt = "UpperPlayerSecretSalt2026";
+        const combined = deviceId + secretSalt;
+        const hash = await sha256(combined);
+        
+        // Take first 10 chars in uppercase
+        const activationKey = hash.substring(0, 10).toUpperCase();
+
+        document.getElementById('keyDisplay').textContent = activationKey;
+        document.getElementById('resultBox').style.display = 'block';
+        document.getElementById('copyHint').textContent = 'Click key to copy to clipboard';
+        document.getElementById('copyHint').style.color = '#A7A9BE';
+    }
+
+    function copyToClipboard() {
+        const keyText = document.getElementById('keyDisplay').textContent;
+        navigator.clipboard.writeText(keyText).then(() => {
+            const hint = document.getElementById('copyHint');
+            hint.textContent = 'Copied successfully!';
+            hint.style.color = '#2ecc71';
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+        });
+    }
+</script>
+
+</body>
+</html>
